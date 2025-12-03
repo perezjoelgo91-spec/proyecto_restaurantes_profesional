@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nueva Reseña</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.html">FoodReviews</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </div>
+</nav>
+
+<div class="container py-5">
+  <h2 class="mb-4">Agregar una Reseña</h2>
+
+  <form id="reviewForm" novalidate>
+
+    <div class="mb-3">
+      <label class="form-label">Nombre del Restaurante</label>
+      <input type="text" class="form-control" id="resto" required minlength="3">
+      <div class="invalid-feedback">Ingrese un nombre válido.</div>
+    </div>
+
+    <!-- BOTÓN PARA BUSCAR RESTAURANTES CERCA DE MÍ -->
+    <button type="button" class="btn btn-success mb-3" onclick="buscarRestaurantes()">
+      Buscar restaurantes cerca de mí
+    </button>
+
+    <!-- LISTA DONDE SE MOSTRARÁN LOS RESULTADOS -->
+    <ul id="listaRestaurantes" class="list-group mb-3"></ul>
+
+    <!-- CAMPOS OCULTOS PARA DATOS DE GOOGLE -->
+    <input type="hidden" id="googleRating">
+    <input type="hidden" id="googleTotal">
+    <input type="hidden" id="googleAddress">
+
+    <div class="mb-3">
+      <label class="form-label">Calificación</label>
+      <select class="form-select" id="rating" required>
+        <option value="">Seleccione...</option>
+        <option value="5">⭐⭐⭐⭐⭐</option>
+        <option value="4">⭐⭐⭐⭐</option>
+        <option value="3">⭐⭐⭐</option>
+        <option value="2">⭐⭐</option>
+        <option value="1">⭐</option>
+      </select>
+      <div class="invalid-feedback">Seleccione una calificación.</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Categoría</label><br>
+      <input type="radio" name="cat" class="form-check-input me-2" value="Casual" required> Casual
+      <input type="radio" name="cat" class="form-check-input ms-3 me-2" value="Familiar"> Familiar
+      <input type="radio" name="cat" class="form-check-input ms-3 me-2" value="Gourmet"> Gourmet
+      <div class="invalid-feedback d-block">Seleccione una categoría.</div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Comentario</label>
+      <textarea class="form-control" id="comment" rows="3" required minlength="10"></textarea>
+      <div class="invalid-feedback">Mínimo 10 caracteres.</div>
+    </div>
+
+    <button class="btn btn-primary">Enviar Reseña</button>
+  </form>
+</div>
+
+<script>
+// --- GOOGLE MAPS API READY ---
+let googleMapsReady = false;
+
+function initGoogleMaps() {
+    console.log("Google Maps API cargada correctamente.");
+    googleMapsReady = true;
+}
+
+// --- BUSCAR RESTAURANTES ---
+function buscarRestaurantes() {
+    if (!navigator.geolocation) {
+        alert("Tu navegador no permite geolocalización.");
+        return;
+    }
+
+    if (!googleMapsReady) {
+        alert("La API de Google Maps aún no ha cargado. Intenta de nuevo en unos segundos.");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(success, error);
+}
+
+function success(position) {
+    const lat = position.coords.latitude;
+    const lng = position.coords.longitude;
+    const location = new google.maps.LatLng(lat, lng);
+
+    const mapDiv = document.createElement("div");
+    const map = new google.maps.Map(mapDiv);
+
+    const service = new google.maps.places.PlacesService(map);
+
+    const request = {
+        location: location,
+        radius: 2000,
+        type: ["restaurant"]
+    };
+
+    service.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            mostrarRestaurantes(results);
+        } else {
+            alert("No se pudieron obtener restaurantes cercanos.");
+        }
+    });
+}
+
+function error() {
+    alert("No se pudo obtener tu ubicación.");
+}
+
+function mostrarRestaurantes(restaurantes) {
+    const lista = document.getElementById("listaRestaurantes");
+    lista.innerHTML = "";
+
+    restaurantes.slice(0, 10).forEach(resto => {
+        const nombre = resto.name;
+        const rating = resto.rating || "Sin datos";
+        const totalResenas = resto.user_ratings_total || 0;
+        const direccion = resto.vicinity || "Dirección no disponible";
+
+        const li = document.createElement("li");
+        li.className = "list-group-item list-group-item-action";
+
+        li.innerHTML = `
+            <strong>${nombre}</strong><br>
+            ⭐ ${rating} (${totalResenas} reseñas)<br>
+            📍 <small>${direccion}</small>
+        `;
+
+        li.onclick = () => {
+            document.getElementById("resto").value = nombre;
+        };
+
+        lista.appendChild(li);
+    });
+}
+</script>
+
+<!-- GOOGLE MAPS API -->
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCHScuwsbg62QuiWM2v1U11Rruv3ucv4CM=places&callback=initGoogleMaps"
+  async
+  defer>
+</script>
+
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+
+.hero {
+  height: 70vh;
+  background: linear-gradient(rgba(0,0,0,.5), rgba(0,0,0,.5)), url('https://images.unsplash.com/photo-1600891964599-f61ba0e24092') center/cover;
+}
+.review-card {
+  transition: transform .2s;
+}
+.review-card:hover {
+  transform: scale(1.03);
+}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodReviews - Inicio</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="index.html">FoodReviews</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="menu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="form.html">Agregar Reseña</a></li>
+        <li class="nav-item"><a class="nav-link" href="result.html">Reseñas</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<header class="hero d-flex align-items-center">
+  <div class="container text-center text-white">
+    <h1 class="display-4 fw-bold">Descubre los Mejores Restaurantes</h1>
+    <p class="lead">Comparte experiencias, califica y ayuda a otros a elegir su próxima comida.</p>
+    <a href="form.html" class="btn btn-primary btn-lg">Agregar una Reseña</a>
+  </div>
+</header>
+
+<section class="container py-5">
+  <h2 class="mb-4 text-center">Reseñas Recientes</h2>
+  <div class="row" id="recentReviews"></div>
+</section>
+
+<script>
+// --- Mostrar reseñas recientes ---
+if(document.getElementById("recentReviews")){
+    let list = JSON.parse(localStorage.getItem("reviews") || "[]");
+    
+    // Tomar las últimas 3 reseñas
+    list.slice(-3).reverse().forEach(r => {
+        document.getElementById("recentReviews").innerHTML += cardHTML(r);
+    });
+}
+
+// --- Función para crear tarjeta de reseña ---
+function cardHTML(r){
+    // Calificación: usar rating de Google si existe, si no, la ingresada por el usuario
+    const ratingStars = r.rating ? "⭐".repeat(Math.round(r.rating)) : "Sin calificación";
+    const totalResenas = r.totalReviews ? `(${r.totalReviews} reseñas)` : "";
+    const direccion = r.address ? `📍 <small>${r.address}</small>` : "";
+
+    return `
+    <div class="col-md-4 mb-4">
+        <div class="card review-card shadow-sm">
+            <div class="card-body">
+                <h5 class="fw-bold">${r.resto}</h5>
+                <p class="text-warning">${ratingStars} ${totalResenas}</p>
+                <span class="badge bg-primary">${r.category}</span>
+                <p class="mt-2">${r.comment}</p>
+                ${direccion ? `<p>${direccion}</p>` : ""}
+            </div>
+        </div>
+    </div>`;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
